@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Lock, ArrowRight, Check, ShieldAlert } from "lucide-react";
+import { API_BASE_URL } from "../../apiUrl";
 import axios from "axios";
 
 const ResetPassword = () => {
@@ -10,15 +11,13 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Extragem token-ul folosind JavaScript pur (Web API nativ)
+  // Extragem token-ul folosinf JavaScript pur (Web API nativ)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tokenParam = params.get("token");
     
     console.log("Încercare citire URL. Am găsit:", tokenParam);
 
-    // GUARD: Salvăm token-ul DOAR dacă el chiar există în URL la randarea curentă!
-    // Dacă e null, nu facem nimic, păstrăm ce am salvat anterior.
     if (tokenParam) {
       setToken(tokenParam);
     }
@@ -38,17 +37,16 @@ const ResetPassword = () => {
       return;
     }
 
-    setLoading(true);
+    loading.true();
 
     try {
-      // Am eliminat complet variabila "response" declarată degeaba
-      await axios.post(`http://localhost:5000/api/user/reset-password/${token}`, {
+      // ✅ CORECTAT: Înlocuit localhost cu string dinamic bazat pe mediu
+      await axios.post(`${API_BASE_URL}/api/user/reset-password/${token}`, {
         password,
       });
 
       setSuccess(true);
       
-      // După 3 secunde trimitem utilizatorul pe pagina principală
       setTimeout(() => {
         window.location.href = "/";
       }, 3000);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../apiUrl";
 import { useAuth } from "@/context/AuthContext";
-import { BookOpen, Award, GraduationCap, Play, Zap, Target } from "lucide-react";
+import { BookOpen, Award, GraduationCap, Zap, Target } from "lucide-react";
 import axios from "axios";
 
 const StudentConsole = ({ onViewChange, setSelectedCourseId }) => {
@@ -18,10 +19,14 @@ const StudentConsole = ({ onViewChange, setSelectedCourseId }) => {
     { id: "master", name: "Elite Champion", desc: "Completed 10 courses (Master Ledger unlocked)", icon: Award, unlocked: completedCount >= 10 },
   ];
 
+  // ✅ SECURIZAT: Adăugat token-ul în headers pentru a preveni eroarea 401 pe Render
   useEffect(() => {
     const fetchHubCourses = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/courses/all");
+        const token = localStorage.getItem("learninghub_token") || "";
+        const headers = { Authorization: `Bearer ${token}` };
+
+        const response = await axios.get(`${API_BASE_URL}/api/courses/all`, { headers });
         setCourses(response.data);
       } catch (error) {
         console.error("Error loading student hub catalog:", error.message);
@@ -32,7 +37,6 @@ const StudentConsole = ({ onViewChange, setSelectedCourseId }) => {
     fetchHubCourses();
   }, []);
 
-  // REPARAT CHIRURGICAL: Aliniat la string-ul central din App.jsx ('video-player')
   const handleLaunchPlayer = (courseId) => {
     if (setSelectedCourseId) {
       setSelectedCourseId(courseId); // Salvăm ID-ul cursului pentru contextul global

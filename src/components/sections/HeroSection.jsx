@@ -111,7 +111,7 @@ const HeroSection = ({ onViewChange }) => {
             <span>
               {user 
                 ? `SYSTEM: READY // Prepared for your next session, ${user.firstName || "Explorer"}?` 
-                : "SYSTEM BOOT // The future of education is here"}
+                : "SYSTEM: BOOT // The future of education is here"}
             </span>
           </div>
 

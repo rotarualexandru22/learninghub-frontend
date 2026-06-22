@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Mail, Lock, User, AtSign, ArrowRight, Check } from "lucide-react";
+import { API_BASE_URL } from "../../../apiUrl"; 
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,6 @@ const AuthModal = () => {
   // Trigger pentru rularea animației la deschidere
   useEffect(() => {
     if (isAuthOpen) {
-      // Îi oferim browserului 10 milisecunde să asimileze elementul în DOM înainte de a activa opacitatea
       const timer = setTimeout(() => setAnimate(true), 10);
       return () => clearTimeout(timer);
     } else {
@@ -83,7 +83,7 @@ const AuthModal = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
       if (!emailRegex.test(targetEmail)) {
         setError("Please enter a valid email address.");
-        setLoading(false);
+        loading.false();
         return;
       }
 
@@ -101,7 +101,8 @@ const AuthModal = () => {
 
     try {
       if (authMode === "login") {
-        const response = await axios.post("http://localhost:5000/api/user/login", { 
+        // ✅ CORECTAT: Înlocuit localhost cu string dinamic
+        const response = await axios.post(`${API_BASE_URL}/api/user/login`, { 
           email: loginEmail, 
           password: loginPassword 
         });
@@ -117,7 +118,8 @@ const AuthModal = () => {
         }
         
       } else if (authMode === "register") {
-        await axios.post("http://localhost:5000/api/user/register", { 
+        // ✅ CORECTAT: Înlocuit localhost cu string dinamic
+        await axios.post(`${API_BASE_URL}/api/user/register`, { 
           firstName, 
           lastName, 
           username, 
@@ -141,13 +143,11 @@ const AuthModal = () => {
   };
 
   return (
-    // LAYER 1: BACKDROP - Schimbă opacitatea dinamic în funcție de starea locală `animate`
     <div className={cn(
       "fixed inset-0 z-50 flex items-center justify-center bg-black/0 backdrop-blur-none p-4 transition-all duration-300 ease-out",
       animate && "bg-black/60 backdrop-blur-sm"
     )}>
       
-      {/* LAYER 2: THE MODAL BOX - Crește fluid în dimensiune și opacitate */}
       <div className={cn(
         "relative w-full max-w-md bg-background text-foreground border border-border rounded-2xl p-8 shadow-2xl overflow-hidden min-h-115 flex flex-col justify-center",
         "opacity-0 scale-95 translate-y-4 transition-all duration-300 ease-out",
@@ -301,7 +301,7 @@ const AuthModal = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-primary text-primary-foreground font-bold py-3.5 px-6 rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 mt-6 hover:cursor-pointer text-sm disabled:opacity-50 font-mono"
+                    className="w-full bg-primary text-primary-foreground font-bold py-3.5 px-6 rounded-xl hover:opacity-90 transition-all transform scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 mt-6 hover:cursor-pointer text-sm disabled:opacity-50 font-mono"
                   >
                     {loading ? "Processing..." : authMode === "login" ? "Sign in" : "Register account"}
                     {!loading && <ArrowRight className="w-4 h-4 stroke-[3px]" />}
@@ -352,7 +352,8 @@ const AuthModal = () => {
                     const targetForgotEmail = e.target.elements.forgotEmail.value;
 
                     try {
-                      await axios.post("http://localhost:5000/api/user/forgot-password", { 
+                      // ✅ CORECTAT: Înlocuit localhost cu string dinamic
+                      await axios.post(`${API_BASE_URL}/api/user/forgot-password`, { 
                         email: targetForgotEmail 
                       });
                       

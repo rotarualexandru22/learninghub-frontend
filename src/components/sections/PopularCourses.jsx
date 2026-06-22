@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Star, ArrowRight, BookOpen } from "lucide-react";
+import { API_BASE_URL } from "../../../apiUrl";  // ✅ CORECTAT: Import validat cu cale relativă
 import { cn } from "@/lib/utils";
 import axios from "axios"; 
 import { useAuth } from "@/context/AuthContext"; 
 
-const PopularCourses = ({ onViewChange }) => {
+// ✅ CORECTAT: Adus prop-ul setSelectedCourseId pentru a injecta ID-ul corect în player
+const PopularCourses = ({ onViewChange, setSelectedCourseId }) => {
   const { user, openLogin } = useAuth(); 
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ const PopularCourses = ({ onViewChange }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/courses/all");
+        const response = await axios.get(`${API_BASE_URL}/api/courses/all`);
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -34,9 +36,15 @@ const PopularCourses = ({ onViewChange }) => {
     }
   };
 
+  // ✅ CORECTAT: Sincronizat perfect cu arhitectura de stări din App.jsx
   const handleStartCourse = (courseId) => {
     if (user) {
-      if (onViewChange) onViewChange("video-player", courseId); 
+      if (setSelectedCourseId) {
+        setSelectedCourseId(courseId); // Salvăm ID-ul global
+      }
+      if (onViewChange) {
+        onViewChange("video-player"); // Deschidem playerul anti-skip
+      }
     } else {
       openLogin(); 
     }
@@ -95,7 +103,7 @@ const PopularCourses = ({ onViewChange }) => {
             {filteredCourses.map((course) => (
               <div key={course._id} className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-2xl hover:border-primary/30 transition-all duration-500 group relative flex flex-col">
                 
-                {/* Media Thumbnail (FĂRĂ BUTON FAVORITE, FĂRĂ OVERLAY PLAY) */}
+                {/* Media Thumbnail */}
                 <div className="relative aspect-video overflow-hidden">
                   <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700" />
                   <div className="absolute top-4 left-4">
