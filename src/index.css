@@ -257,3 +257,30 @@ html {
 .animate-scroll:hover {
   animation-play-state: paused;
 }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 5px;
+  border: 2px solid #09090b;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3e635;
+  cursor: grab;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) #09090b;
+}

@@ -22,16 +22,18 @@ import StudentConsole from './pages/StudentConsole';
 import VideoPlayer from './pages/VideoPlayer';
 
 const AppContent = () => {
-  // Starea pentru memorarea cursului activ selectat de student
-  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  // Starea pentru memorarea cursului activ selectat de student (Persistă corect acum)
+  const [selectedCourseId, setSelectedCourseId] = useState(() => {
+    return localStorage.getItem("learninghub_selected_course") || null;
+  });
 
-  // REPARAT: Sincronizare inițială cu URL-ul din browser la refresh (Aliniat pe 'video-player')
+  // Sincronizare inițială cu URL-ul din browser la refresh
   const [currentView, setCurrentView] = useState(() => {
     const path = window.location.pathname;
     if (path === '/account') return 'account';
     if (path === '/admin') return 'admin';
     if (path === '/dashboard') return 'dashboard';
-    if (path === '/video-player') return 'video-player'; // REPARAT INTEGRAL
+    if (path === '/video-player') return 'video-player'; 
     if (path.startsWith('/reset-password')) return 'reset-password'; 
     return 'home';
   });
@@ -40,17 +42,22 @@ const AppContent = () => {
     window.scrollTo(0, 0); 
   }, [currentView]);
 
-  // REPARAT CHIRURGICAL: Acum acceptă și stochează courseId-ul trimis din PopularCourses sau StudentConsole
+  // ✅ REPARAT DE DEFINITIV: Acum salvează activ ID-ul în localStorage sau îl curăță la ieșire
   const handleNavigate = (view, courseId = null) => {
     setCurrentView(view);
+    
     if (courseId) {
       setSelectedCourseId(courseId);
+      localStorage.setItem("learninghub_selected_course", courseId); // 💾 Salvare persistentă în browser!
+    } else if (view === 'dashboard' || view === 'home') {
+      // Dacă studentul iese voluntar din player, opțional putem curăța localStorage-ul
+      // Sfat: o lăsăm așa momentan pentru ca refresh-ul să fie ultra-stabil
     }
     
     const targetPath = view === 'home' ? '/' : `/${view}`;
     
     if (window.location.pathname !== targetPath && !window.location.pathname.startsWith('/reset-password')) {
-      window.history.pushState({ view, courseId }, '', targetPath);
+      window.history.pushState({ view, courseId: courseId || selectedCourseId }, '', targetPath);
     }
   };
 
@@ -60,6 +67,7 @@ const AppContent = () => {
       setCurrentView(targetView);
       if (event.state?.courseId) {
         setSelectedCourseId(event.state.courseId);
+        localStorage.setItem("learninghub_selected_course", event.state.courseId);
       }
     };
 
@@ -84,7 +92,13 @@ const AppContent = () => {
             <SocialProofBar />
             <Partners />
             <Benefits />
-            <PopularCourses onViewChange={handleNavigate} />
+            <PopularCourses 
+              onViewChange={handleNavigate} 
+              setSelectedCourseId={(id) => {
+                setSelectedCourseId(id);
+                localStorage.setItem("learninghub_selected_course", id); // 💾 Fix și pentru apelul direct din PopularCourses
+              }}
+            />
             <Gamification />
             <Instructors />
             <HowItWorks />
@@ -121,13 +135,16 @@ const AppContent = () => {
           <div className="animate-fade-in">
             <StudentConsole 
               onViewChange={handleNavigate} 
-              setSelectedCourseId={setSelectedCourseId} 
+              setSelectedCourseId={(id) => {
+                setSelectedCourseId(id);
+                localStorage.setItem("learninghub_selected_course", id); // 💾 Fix și pentru apelul din StudentConsole
+              }} 
             />
           </div>
         )}
 
         {/* VIEW F: ANTI-SKIP CORE VIDEO STREAMS PLAYER (REPARAT INTEGRAL SINCRO) */}
-        {currentView === 'video-player' && selectedCourseId && (
+        {currentView === 'video-player' && (
           <div className="animate-fade-in">
             <VideoPlayer 
               courseId={selectedCourseId} 
