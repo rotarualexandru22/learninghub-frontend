@@ -20,6 +20,7 @@ import AccountPanel from './components/dashboard/AccountPanel';
 import ResetPassword from './pages/ResetPassword';
 import StudentConsole from './pages/StudentConsole';
 import VideoPlayer from './pages/VideoPlayer';
+import NotFound from './pages/NotFound';
 
 const AppContent = () => {
   // Starea pentru memorarea cursului activ selectat de student (Persistă corect acum)
@@ -30,12 +31,14 @@ const AppContent = () => {
   // Sincronizare inițială cu URL-ul din browser la refresh
   const [currentView, setCurrentView] = useState(() => {
     const path = window.location.pathname;
+    if (path === '/' || path === '') return 'home';
     if (path === '/account') return 'account';
     if (path === '/admin') return 'admin';
     if (path === '/dashboard') return 'dashboard';
     if (path === '/video-player') return 'video-player'; 
-    if (path.startsWith('/reset-password')) return 'reset-password'; 
-    return 'home';
+    if (path.startsWith('/reset-password')) return 'reset-password';
+
+    return 'not-found';
   });
 
   useEffect(() => {
@@ -151,6 +154,11 @@ const AppContent = () => {
               onViewChange={handleNavigate} 
             />
           </div>
+        )}
+
+        {/* 🚨 VIEW G: CYBERPUNK AUTHENTIC 404 NOT FOUND SYSTEM */}
+        {currentView === 'not-found' && (
+          <NotFound onViewChange={handleNavigate} />
         )}
       </main>
 
